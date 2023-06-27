@@ -1,0 +1,8 @@
+# Service Post \uC124\uC815
+server:
+  port: 9091
+
+# Log Level \uC124\uC815
+logging:
+  level:
+    root: debug
