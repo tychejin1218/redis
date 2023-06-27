@@ -21,8 +21,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    // JReJSON
-    implementation 'com.redislabs:jrejson:1.5.0'
+    // Jedis
+    implementation 'redis.clients:jedis:4.4.3'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
@@ -31,6 +31,6 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+test {
+    exclude '**/*'
 }

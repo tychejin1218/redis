@@ -1,12 +1,9 @@
 package com.example.redisjson.service;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.redisjson.dto.StoreDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +20,9 @@ class StoreServiceTest {
 
   @Autowired
   private StoreService storeService;
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @DisplayName("saveStore_Redis JSON 저장")
   @Test
@@ -91,7 +91,7 @@ class StoreServiceTest {
     StoreDto savedStore = storeService.saveStore(key, storeDto);
 
     // Then
-    log.debug("savedStore: {}", objectToJson(savedStore));
+    log.debug("savedStore: {}", objectMapper.writeValueAsString(savedStore));
     assertFalse(ObjectUtils.isEmpty(savedStore));
   }
 
@@ -106,7 +106,7 @@ class StoreServiceTest {
     StoreDto storeDto = storeService.findStore(key);
 
     // Then
-    log.debug("storeDto: {}", objectToJson(storeDto));
+    log.debug("storeDto: {}", objectMapper.writeValueAsString(storeDto));
     assertFalse(ObjectUtils.isEmpty(storeDto));
   }
 
@@ -161,14 +161,7 @@ class StoreServiceTest {
     Object object = storeService.findStore(key, path);
 
     // Then
-    log.debug("object: {}", objectToJson(object));
+    log.debug("object: {}", objectMapper.writeValueAsString(object));
     assertFalse(ObjectUtils.isEmpty(object));
-  }
-
-  public <T> String objectToJson(T t) throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    StringWriter writer = new StringWriter();
-    mapper.writeValue(writer, t);
-    return writer.toString();
   }
 }

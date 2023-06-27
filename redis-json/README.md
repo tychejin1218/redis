@@ -6,3 +6,7 @@
 ---
 ### Redis JSON data type overview
 * https://docs.aws.amazon.com/ko_kr/AmazonElastiCache/latest/red-ug/json-document-overview.html
+
+---
+### Indexing and querying JSON documents
+* https://redis.io/docs/clients/java/
