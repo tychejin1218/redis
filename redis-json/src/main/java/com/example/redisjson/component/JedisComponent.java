@@ -1,8 +1,7 @@
 package com.example.redisjson.component;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,7 @@ public class JedisComponent {
    * @param <T>   가져올 데이터 객체의 타입
    * @return Redis에서 가져온 데이터 객체
    */
-  public <T> T getJson(String key, Class<T> clazz) {
+  public <T> T getJsonObject(String key, Class<T> clazz) {
     return jedisPooled.jsonGet(key, clazz);
   }
 
@@ -51,15 +50,17 @@ public class JedisComponent {
    * @param <T>   가져올 데이터 객체의 타입
    * @return Redis에서 가져온 JSON 배열을 변환한 List 객체
    */
-  public <T> List<T> getJson(String key, Class<T> clazz, String path) {
+  public <T> List<T> getJsonArray(String key, Class<T> clazz, String path) throws IOException {
 
     List<T> list = new ArrayList<>();
 
     Object object = jedisPooled.jsonGet(key, new Path(path));
     if (!ObjectUtils.isEmpty(object)) {
-      Gson gson = new Gson();
-      Type type = new TypeToken<List<T>>() {}.getType();
-      list = gson.fromJson(object.toString(), type);
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString = objectMapper.writeValueAsString(object);
+      list = objectMapper.readValue(
+          jsonString,
+          objectMapper.getTypeFactory().constructCollectionType(List.class, clazz));
     }
 
     return list;

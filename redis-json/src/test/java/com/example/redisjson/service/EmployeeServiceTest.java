@@ -109,8 +109,12 @@ class EmployeeServiceTest {
     // When
     List<EmployeeDto.Info> responseEmployee = employeeService.findEmployee(key, path);
 
+
     // Then
     log.debug("responseEmployee: {}", objectMapper.writeValueAsString(responseEmployee));
+
+    log.debug("name: {}", responseEmployee.get(0).getName());
+
     assertFalse(ObjectUtils.isEmpty(responseEmployee));
   }
 }

@@ -30,7 +30,7 @@ public class EmployeeService {
    */
   public EmployeeDto.Info saveEmployeeInfo(String key, EmployeeDto.Info employeeInfo) {
     jedisComponent.setJson(key, employeeInfo);
-    return jedisComponent.getJson(key, EmployeeDto.Info.class);
+    return jedisComponent.getJsonObject(key, EmployeeDto.Info.class);
   }
 
   /**
@@ -42,7 +42,7 @@ public class EmployeeService {
    */
   public EmployeeDto saveEmployee(String key, EmployeeDto employee) {
     jedisComponent.setJson(key, employee);
-    return jedisComponent.getJson(key, EmployeeDto.class);
+    return jedisComponent.getJsonObject(key, EmployeeDto.class);
   }
 
   /**
@@ -52,7 +52,7 @@ public class EmployeeService {
    * @return 경로에 해당하는 객체 (Object)
    */
   public EmployeeDto findEmployee(String key) {
-    return jedisComponent.getJson(key, EmployeeDto.class);
+    return jedisComponent.getJsonObject(key, EmployeeDto.class);
   }
 
   /**
@@ -62,7 +62,7 @@ public class EmployeeService {
    * @param path 경로
    * @return 경로에 해당하는 객체 (List<Object>)
    */
-  public List<EmployeeDto.Info> findEmployee(String key, String path) {
-    return jedisComponent.getJson(key, EmployeeDto.Info.class, path);
+  public List<EmployeeDto.Info> findEmployee(String key, String path) throws Exception {
+    return jedisComponent.getJsonArray(key, EmployeeDto.Info.class, path);
   }
 }
