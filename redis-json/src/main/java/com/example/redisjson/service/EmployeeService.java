@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-/**
- * Redis JSON Tutorial
+/** *
+ * EmployeeDto 객체를 Redis에 저장 및 조회
+ *
  * <p>
  * Storing and Querying JSON documents using Redis Stack
  * https://developer.redis.com/howtos/redisjson/getting-started

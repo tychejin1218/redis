@@ -1,39 +1,54 @@
 package com.example.redisjson.config;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.Protocol;
 
 @Slf4j
 @Configuration
 public class JedisConfig {
 
-  @Value("${redis.single.node}")
-  private String node;
-
-//  @Value("${redis.cluster.nodes}")
-//  private List<String> nodes;
-
+  /**
+   * GenericObjectPoolConfig 빈을 생성하여 반환
+   *
+   * @return JedisPooled 객체
+   */
   @Bean
-  public GenericObjectPoolConfig connectionPoolConfig() {
+  public GenericObjectPoolConfig genericObjectPoolConfig() {
     return new GenericObjectPoolConfig();
   }
 
+  /**
+   * JedisPooled 빈을 생성하여 반환
+   *
+   * @return JedisPooled 객체
+   */
   @Bean
-  public JedisPooled jedisPooled(GenericObjectPoolConfig connectionPoolConfig) {
-    String[] nodeSplit = node.split(":");
+  public JedisPooled jedisPooled(GenericObjectPoolConfig genericObjectPoolConfig) {
     JedisPooled jedisPooled = new JedisPooled(
-        connectionPoolConfig, nodeSplit[0], Integer.parseInt(nodeSplit[1]));
+        genericObjectPoolConfig,
+        Protocol.DEFAULT_HOST,
+        Protocol.DEFAULT_PORT);
     return jedisPooled;
   }
+}
+
+//  @Value("${redis.single.node}")
+//  private String node;
+//
+//  @Bean
+//  public JedisPooled jedisPooled(GenericObjectPoolConfig genericObjectPoolConfig) {
+//    String[] nodeSplit = node.split(":");
+//    JedisPooled jedisPooled = new JedisPooled(
+//        genericObjectPoolConfig, nodeSplit[0], Integer.parseInt(nodeSplit[1]));
+//    return jedisPooled;
+//  }
+
+//  @Value("${redis.cluster.nodes}")
+//  private List<String> nodes;
 
 //  @Bean
 //  public JedisCluster jedisCluster(GenericObjectPoolConfig connectionPoolConfig) {
@@ -46,4 +61,3 @@ public class JedisConfig {
 //
 //    return new JedisCluster(jedisClusterNodes, connectionPoolConfig);
 //  }
-}

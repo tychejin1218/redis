@@ -23,9 +23,9 @@ class EmployeeServiceTest {
   @Autowired
   private ObjectMapper objectMapper;
 
-  @DisplayName("saveEmployee_Redis에 객체(EmployeeDto.Info)를 JSON 형식으로 저장")
+  @DisplayName("saveEmployeeInfo_EmployeeDto.Info를 Redis에 JSON 형식으로 저장")
   @Test
-  void testSaveEmployeeObject() throws Exception {
+  void testSaveEmployeeInfo() throws Exception {
 
     // Given
     String key = "employee_profile";
@@ -43,9 +43,9 @@ class EmployeeServiceTest {
     assertFalse(ObjectUtils.isEmpty(responseEmployeeInfo));
   }
 
-  @DisplayName("saveEmployee_Redis에 객체(EmployeeDto)를 JSON 형식으로 저장")
+  @DisplayName("saveEmployee_EmployeeDto를 Redis에 JSON 형식으로 저장")
   @Test
-  void testSaveEmployeeArray() throws Exception {
+  void testSaveEmployee() throws Exception {
 
     // Given
     String key = "employee_info";
@@ -83,7 +83,7 @@ class EmployeeServiceTest {
     assertFalse(ObjectUtils.isEmpty(responseEmployee));
   }
 
-  @DisplayName("findEmployee_Redis 조회 시 EmployeeDto로 반환")
+  @DisplayName("findEmployee_키(key)를 사용하여 Redis에 저장된 객체를 조회")
   @Test
   void testFindEmployee() throws Exception {
 
@@ -98,7 +98,7 @@ class EmployeeServiceTest {
     assertFalse(ObjectUtils.isEmpty(responseEmployee));
   }
 
-  @DisplayName("findEmployee_Redis 조회 시 EmployeeDto로 반환")
+  @DisplayName("findEmployee_키(key)와 경로(path)를 사용하여 Redis에 저장된 객체를 조회")
   @Test
   void testFindEmployeePath() throws Exception {
 
@@ -109,12 +109,8 @@ class EmployeeServiceTest {
     // When
     List<EmployeeDto.Info> responseEmployee = employeeService.findEmployee(key, path);
 
-
     // Then
     log.debug("responseEmployee: {}", objectMapper.writeValueAsString(responseEmployee));
-
-    log.debug("name: {}", responseEmployee.get(0).getName());
-
     assertFalse(ObjectUtils.isEmpty(responseEmployee));
   }
 }
