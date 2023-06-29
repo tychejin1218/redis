@@ -155,7 +155,7 @@ class StoreServiceTest {
     // 비소설 범주의 모든 책
     strPaths[18] = "$.store.book[?(@.[\"category\"] != \"fiction\")]";
 
-    Path path = new Path(strPaths[1]);
+    Path path = new Path(strPaths[15]);
 
     // When
     Object object = storeService.findStore(key, path);

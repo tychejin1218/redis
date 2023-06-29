@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.json.Path;
 
-
 /**
  * Redis JSON data type overview
  *

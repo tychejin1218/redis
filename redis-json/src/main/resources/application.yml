@@ -1,8 +1,23 @@
-# Service Post \uC124\uC815
+# Service Post 설정
 server:
   port: 9091
 
-# Log Level \uC124\uC815
+# Log Level 설정
 logging:
   level:
     root: debug
+
+---
+# Redis Cluster 설정
+redis:
+  single:
+    node: 127.0.0.1:6379
+
+---
+# Redis Cluster 설정
+#redis:
+#  cluster:
+#    nodes:
+#      127.0.0.1:6001,
+#      127.0.0.1:6002,
+#      127.0.0.1:6003
