@@ -30,7 +30,7 @@ public class EmployeeService {
    * @return 저장된 객체 (EmployeeDto.Info)
    */
   public EmployeeDto.Info saveEmployeeInfo(String key, EmployeeDto.Info employeeInfo) {
-    jedisComponent.setJson(key, employeeInfo);
+    jedisComponent.setJson(key, employeeInfo, 60 * 5);
     return jedisComponent.getJsonObject(key, EmployeeDto.Info.class);
   }
 
@@ -42,7 +42,7 @@ public class EmployeeService {
    * @return 저장된 객체 (EmployeeDto)
    */
   public EmployeeDto saveEmployee(String key, EmployeeDto employee) {
-    jedisComponent.setJson(key, employee);
+    jedisComponent.setJson(key, employee, 60 * 5);
     return jedisComponent.getJsonObject(key, EmployeeDto.class);
   }
 
