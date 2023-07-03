@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.ValueOperations;
@@ -41,6 +44,28 @@ class RedisTemplateTest {
     String actualValue = valueOperations.get(key);
     log.debug("actualValue: {}", actualValue);
     assertEquals(value, actualValue);
+  }
+
+  @DisplayName("Data Type이 List인 경우 테스트")
+  @Test
+  public void testList() {
+
+    // Given
+    ListOperations<String, String> listOperations = redisTemplate.opsForList();
+    String key = "list_key";
+    List<String> strs = Arrays.asList("value_01", "value_02", "value_03");
+
+    // When
+    for (String str : strs) {
+      listOperations.leftPush(key, str);
+    }
+
+    // Then
+    for (String str : strs) {
+      String value = listOperations.rightPop(key);
+      log.debug("value: {}", value);
+      assertTrue(value.contains(str));
+    }
   }
 
   @DisplayName("Data Type이 Set인 경우 테스트")
