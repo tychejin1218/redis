@@ -1,0 +1,15 @@
+# Service Post ??
+server:
+  port: 9091
+
+# Log Level ??
+logging:
+  level:
+    root: debug
+    
+# Redis ??    
+spring:
+  redis:
+    single:
+      host: localhost
+      port: 6379
