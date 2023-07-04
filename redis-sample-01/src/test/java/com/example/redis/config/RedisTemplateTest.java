@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.util.ObjectUtils;
 
 @Slf4j
@@ -38,7 +40,7 @@ class RedisTemplateTest {
     String value = "value_01";
 
     // When
-    valueOperations.set(key, value);
+    valueOperations.set(key, value, 5, TimeUnit.MINUTES);
 
     // Then
     String actualValue = valueOperations.get(key);
@@ -59,6 +61,7 @@ class RedisTemplateTest {
     for (String str : strs) {
       listOperations.leftPush(key, str);
     }
+    redisTemplate.expire(key, 5, TimeUnit.MINUTES);
 
     // Then
     for (String str : strs) {
@@ -81,6 +84,7 @@ class RedisTemplateTest {
 
     // When
     setOperations.add(key, value01, value02, value03);
+    redisTemplate.expire(key, 5, TimeUnit.MINUTES);
 
     // Then
     Set<String> members = setOperations.members(key);
@@ -90,6 +94,34 @@ class RedisTemplateTest {
         () -> assertTrue(members.contains(value01)),
         () -> assertTrue(members.contains(value02)),
         () -> assertTrue(members.contains(value03))
+    );
+  }
+
+  @DisplayName("Data Type이 ZSet인 경우 테스트")
+  @Test
+  void testSortedSet() {
+
+    // Given
+    ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+    String key = "z_set_key";
+    String value01 = "value_01";
+    String value02 = "value_02";
+    String value03 = "value_03";
+
+    // When
+    zSetOperations.add(key, value01, 1.0);
+    zSetOperations.add(key, value02, 2.0);
+    zSetOperations.add(key, value03, 3.0);
+    redisTemplate.expire(key, 5, TimeUnit.MINUTES);
+
+    // Then
+    Set<String> range = zSetOperations.range(key, 0, 3);
+    log.debug("range: {}", range);
+    assertFalse(ObjectUtils.isEmpty(range));
+    assertAll(
+        () -> assertTrue(range.contains(value01)),
+        () -> assertTrue(range.contains(value02)),
+        () -> assertTrue(range.contains(value03))
     );
   }
 
@@ -105,6 +137,7 @@ class RedisTemplateTest {
 
     // When
     hashOperations.put(key, hashKey, value);
+    redisTemplate.expire(key, 5, TimeUnit.MINUTES);
 
     // Then
     Map<Object, Object> map = hashOperations.entries(key);
