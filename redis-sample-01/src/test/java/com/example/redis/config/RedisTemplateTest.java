@@ -97,6 +97,29 @@ class RedisTemplateTest {
     );
   }
 
+  @DisplayName("Data Type이 Hash인 경우 테스트")
+  @Test
+  void testHash() {
+
+    // Given
+    HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
+    String key = "hash_key";
+    String hashKey = "field_01";
+    String value = "value_01";
+
+    // When
+    hashOperations.put(key, hashKey, value);
+    redisTemplate.expire(key, 5, TimeUnit.MINUTES);
+
+    // Then
+    Map<Object, Object> map = hashOperations.entries(key);
+    log.debug("map: {}", map);
+    assertAll(
+        () -> assertTrue(map.keySet().contains(hashKey)),
+        () -> assertTrue(map.values().contains(value))
+    );
+  }
+
   @DisplayName("Data Type이 ZSet인 경우 테스트")
   @Test
   void testSortedSet() {
@@ -122,29 +145,6 @@ class RedisTemplateTest {
         () -> assertTrue(range.contains(value01)),
         () -> assertTrue(range.contains(value02)),
         () -> assertTrue(range.contains(value03))
-    );
-  }
-
-  @DisplayName("Data Type이 Hash인 경우 테스트")
-  @Test
-  void testHash() {
-
-    // Given
-    HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-    String key = "hash_key";
-    String hashKey = "field_01";
-    String value = "value_01";
-
-    // When
-    hashOperations.put(key, hashKey, value);
-    redisTemplate.expire(key, 5, TimeUnit.MINUTES);
-
-    // Then
-    Map<Object, Object> map = hashOperations.entries(key);
-    log.debug("map: {}", map);
-    assertAll(
-        () -> assertTrue(map.keySet().contains(hashKey)),
-        () -> assertTrue(map.values().contains(value))
     );
   }
 }

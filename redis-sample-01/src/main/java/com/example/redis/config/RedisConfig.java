@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -11,17 +12,21 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-  @Value("${spring.redis.single.host}")
-  private String host;
-
-  @Value("${spring.redis.single.port}")
-  private int port;
-
+  /**
+   * LettuceConnectionFactory를 사용하여 RedisConnectionFactory 빈을 생성하여 반환
+   *
+   * @return RedisConnectionFactory 객체
+   */
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
-    return new LettuceConnectionFactory(host, port);
+    return new LettuceConnectionFactory(new RedisStandaloneConfiguration());
   }
 
+  /**
+   * RedisTemplate 빈을 생성하여 반환
+   *
+   * @return RedisTemplate 객체
+   */
   @Bean
   public RedisTemplate<?, ?> redisTemplate() {
     RedisTemplate<byte[], byte[]> redisTemplate = new RedisTemplate<>();

@@ -6,10 +6,3 @@ server:
 logging:
   level:
     root: debug
-    
-# Redis ??    
-spring:
-  redis:
-    single:
-      host: localhost
-      port: 6379
