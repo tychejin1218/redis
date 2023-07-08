@@ -36,16 +36,16 @@ class RedisTemplateTest {
 
     // Given
     ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-    String key = "string_key";
-    String value = "value_01";
+    String requestKey = "string_key";
+    String requestValue = "value_01";
 
     // When
-    valueOperations.set(key, value, 5, TimeUnit.MINUTES);
+    valueOperations.set(requestKey, requestValue, 5, TimeUnit.MINUTES);
 
     // Then
-    String actualValue = valueOperations.get(key);
-    log.debug("actualValue: {}", actualValue);
-    assertEquals(value, actualValue);
+    String value = valueOperations.get(requestKey);
+    log.info("testString - value: {}", value);
+    assertEquals(value, value);
   }
 
   @DisplayName("Data Type이 List인 경우 테스트")
@@ -66,7 +66,7 @@ class RedisTemplateTest {
     // Then
     for (String str : strs) {
       String value = listOperations.rightPop(key);
-      log.debug("value: {}", value);
+      log.info("testList - value: {}", value);
       assertTrue(value.contains(str));
     }
   }
@@ -88,7 +88,7 @@ class RedisTemplateTest {
 
     // Then
     Set<String> members = setOperations.members(key);
-    log.debug("members: {}", members);
+    log.info("testSet - members: {}", members);
     assertFalse(ObjectUtils.isEmpty(members));
     assertAll(
         () -> assertTrue(members.contains(value01)),
@@ -113,7 +113,7 @@ class RedisTemplateTest {
 
     // Then
     Map<Object, Object> map = hashOperations.entries(key);
-    log.debug("map: {}", map);
+    log.info("testHash - map: {}", map);
     assertAll(
         () -> assertTrue(map.keySet().contains(hashKey)),
         () -> assertTrue(map.values().contains(value))
@@ -139,7 +139,7 @@ class RedisTemplateTest {
 
     // Then
     Set<String> range = zSetOperations.range(key, 0, 3);
-    log.debug("range: {}", range);
+    log.info("testSortedSet - range: {}", range);
     assertFalse(ObjectUtils.isEmpty(range));
     assertAll(
         () -> assertTrue(range.contains(value01)),
