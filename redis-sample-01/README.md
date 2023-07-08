@@ -1,4 +1,4 @@
-### [Spring Boot] RedisTemplate을 이용한 Redis Data Type 확인
+### [Spring Boot] RedisTemplate을 이용한 Redis Data Types 확인
 - #### 개발 환경
   - ##### IDE (IntelliJ IDEA 2022.3.1)
   - ##### JDK 17

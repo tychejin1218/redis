@@ -1,8 +1,8 @@
-# Service Post 설정
+# Service Post ??
 server:
   port: 9091
 
-# Log Level 설정
+# Log Level ??
 logging:
   level:
-    root: info
+    root: debug
