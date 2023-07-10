@@ -2,6 +2,7 @@ package com.example.redis.service;
 
 import com.example.redis.dto.EmployeeDto;
 import com.example.redis.repository.EmployeeRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,12 @@ public class EmployeeService {
 
   private final EmployeeRepository employeeRepository;
 
+  /**
+   * EmployeeDto를 저장
+   *
+   * @param employeeDto 설명
+   * @return 설명
+   */
   public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
     return employeeRepository.save(employeeDto);
   }
@@ -27,13 +34,11 @@ public class EmployeeService {
     employeeRepository.deleteById(id);
   }
 
-  public void findAllEmployee() {
-    Iterable<EmployeeDto> employees  = employeeRepository.findAll();
-    log.debug("employees: {}", employees);
+  public List<EmployeeDto> findAllEmployee() {
+    return employeeRepository.findAll();
   }
 
-  public void findAllByIdEmployee(List<String> ids) {
-    Iterable<EmployeeDto> employees  = employeeRepository.findAllById(ids);
-    log.debug("employees: {}", employees);
+  public List<EmployeeDto> findAllByIdEmployee(List<String> ids) {
+    return employeeRepository.findAllById(ids);
   }
 }
