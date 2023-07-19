@@ -1,0 +1,8 @@
+### 메시지 발행
+POST http://localhost:9091/message/publish
+Content-Type: application/json
+
+{
+  "sender" : "Sender Test 001",
+  "context" : "Context Test 001"
+}
