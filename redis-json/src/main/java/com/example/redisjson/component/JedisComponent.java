@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.args.ExpiryOption;
 import redis.clients.jedis.json.Path;
@@ -18,7 +19,7 @@ import redis.clients.jedis.json.Path;
 @Component
 public class JedisComponent {
 
-  private final JedisPooled jedisPooled;
+  private final JedisCluster jedisCluster;
 
   /**
    * 객체를 Redis에 JSON 형식으로 저장
@@ -28,8 +29,8 @@ public class JedisComponent {
    * @param <T> 데이터 객체의 타입
    */
   public <T> void setJson(String key, T t, long seconds) {
-    jedisPooled.jsonSetLegacy(key, t);
-    jedisPooled.expire(key, seconds);
+    jedisCluster.jsonSetLegacy(key, t);
+    jedisCluster.expire(key, seconds);
   }
 
   /**
@@ -41,7 +42,7 @@ public class JedisComponent {
    * @return Redis에서 가져온 데이터 객체
    */
   public <T> T getJsonObject(String key, Class<T> clazz) {
-    return jedisPooled.jsonGet(key, clazz);
+    return jedisCluster.jsonGet(key, clazz);
   }
 
   /**
@@ -57,7 +58,7 @@ public class JedisComponent {
 
     List<T> list = new ArrayList<>();
 
-    Object object = jedisPooled.jsonGet(key, new Path(path));
+    Object object = jedisCluster.jsonGet(key, new Path(path));
     if (!ObjectUtils.isEmpty(object)) {
       ObjectMapper objectMapper = new ObjectMapper();
       String jsonString = objectMapper.writeValueAsString(object);

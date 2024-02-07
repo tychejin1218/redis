@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.search.Document;
 import redis.clients.jedis.search.FTCreateParams;
@@ -27,7 +28,7 @@ import redis.clients.jedis.search.schemafields.TextField;
 @Service
 public class UserService {
 
-  private final JedisPooled jedisPooled;
+  private final JedisCluster jedisCluster;
 
   /**
    * Redis에 객체를 JSON(ReJSON-RL) 형태로 저장
@@ -37,8 +38,8 @@ public class UserService {
    * @return 저장된 사용자 정보 (UserDto 객체)
    */
   public UserDto saveUser(String key, UserDto userDto) {
-    jedisPooled.jsonSetWithEscape(key, userDto);
-    return jedisPooled.jsonGet(key, UserDto.class);
+    jedisCluster.jsonSetWithEscape(key, userDto);
+    return jedisCluster.jsonGet(key, UserDto.class);
   }
 
   /**
@@ -50,7 +51,7 @@ public class UserService {
    */
   public List<Document> findUser(String indexName, Query query) {
     createIndex();
-    return jedisPooled.ftSearch(indexName, query).getDocuments();
+    return jedisCluster.ftSearch(indexName, query).getDocuments();
   }
 
   /**
@@ -63,22 +64,22 @@ public class UserService {
    */
   public List<Document> findUserReturnField(String indexName, Query query, String field) {
     createIndex();
-    return jedisPooled.ftSearch(indexName, query.returnFields(field)).getDocuments();
+    return jedisCluster.ftSearch(indexName, query.returnFields(field)).getDocuments();
   }
 
   public AggregationResult findUserAggregate(String indexName, String query, String field) {
     createIndex();
     AggregationBuilder ab = new AggregationBuilder(query)
         .groupBy(field, Reducers.count().as("count"));
-    return jedisPooled.ftAggregate(indexName, ab);
+    return jedisCluster.ftAggregate(indexName, ab);
   }
 
   /**
    * JSON 형식의 데이터를 사용하는 인덱스를 생성
    */
   public void createIndex() {
-    jedisPooled.ftDropIndex("idx:users");
-    jedisPooled.ftCreate("idx:users",
+    jedisCluster.ftDropIndex("idx:users");
+    jedisCluster.ftCreate("idx:users",
         FTCreateParams.createParams()
             .on(IndexDataType.JSON)
             .addPrefix("user:"),

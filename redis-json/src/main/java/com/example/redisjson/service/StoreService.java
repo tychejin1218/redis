@@ -4,6 +4,7 @@ import com.example.redisjson.dto.StoreDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.json.Path;
 
@@ -19,7 +20,7 @@ import redis.clients.jedis.json.Path;
 @Service
 public class StoreService {
 
-  private final JedisPooled jedisPooled;
+  private final JedisCluster jedisCluster;
 
   /**
    * Redis에 객체를 JSON(ReJSON-RL) 형태로 저장
@@ -29,8 +30,8 @@ public class StoreService {
    * @return 저장된 객체 (StoreDto)
    */
   public StoreDto saveStore(String key, StoreDto requestStore) {
-    jedisPooled.jsonSetLegacy(key, requestStore);
-    return jedisPooled.jsonGet(key, StoreDto.class);
+    jedisCluster.jsonSetLegacy(key, requestStore);
+    return jedisCluster.jsonGet(key, StoreDto.class);
   }
 
   /**
@@ -40,7 +41,7 @@ public class StoreService {
    * @return 경로에 해당하는 객체 (Object)
    */
   public StoreDto findStore(String key) {
-    return jedisPooled.jsonGet(key, StoreDto.class);
+    return jedisCluster.jsonGet(key, StoreDto.class);
   }
 
   /**
@@ -51,6 +52,6 @@ public class StoreService {
    * @return 경로에 해당하는 객체 (Object)
    */
   public Object findStore(String key, Path path) {
-    return jedisPooled.jsonGet(key, path);
+    return jedisCluster.jsonGet(key, path);
   }
 }

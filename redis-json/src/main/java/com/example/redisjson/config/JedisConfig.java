@@ -1,11 +1,15 @@
 package com.example.redisjson.config;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import redis.clients.jedis.JedisPooled;
-import redis.clients.jedis.Protocol;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.JedisCluster;
 
 @Slf4j
 @Configuration
@@ -26,13 +30,28 @@ public class JedisConfig {
    *
    * @return JedisPooled 객체
    */
+//  @Bean
+//  public JedisPooled jedisPooled(GenericObjectPoolConfig genericObjectPoolConfig) {
+//    JedisPooled jedisPooled = new JedisPooled(
+//        genericObjectPoolConfig,
+//        Protocol.DEFAULT_HOST,
+//        Protocol.DEFAULT_PORT);
+//    return jedisPooled;
+//  }
+
+  @Value("${redis.cluster.nodes}")
+  private List<String> nodes;
+
   @Bean
-  public JedisPooled jedisPooled(GenericObjectPoolConfig genericObjectPoolConfig) {
-    JedisPooled jedisPooled = new JedisPooled(
-        genericObjectPoolConfig,
-        Protocol.DEFAULT_HOST,
-        Protocol.DEFAULT_PORT);
-    return jedisPooled;
+  public JedisCluster jedisCluster(GenericObjectPoolConfig genericObjectPoolConfig) {
+
+    Set<HostAndPort> jedisClusterNodes = new HashSet<>();
+    nodes.forEach(node -> {
+      String[] nodeSplit = node.split(":");
+      jedisClusterNodes.add(new HostAndPort(nodeSplit[0], Integer.parseInt(nodeSplit[1])));
+    });
+
+    return new JedisCluster(jedisClusterNodes, genericObjectPoolConfig);
   }
 }
 
