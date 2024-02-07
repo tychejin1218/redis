@@ -11,11 +11,11 @@ logging:
 # Redis Cluster 설정
 #redis:
 #  single:
-#    node: ds-dev-redis-cluster-0001-001.ozro5e.0001.apn2.cache.amazonaws.com:6379
+#    node:
 
 ---
 # Redis Cluster 설정
 redis:
   cluster:
     nodes:
-      ds-dev-redis-cluster-0001-001.ozro5e.0001.apn2.cache.amazonaws.com:6379
+

@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.json.Path;
 
 /**
@@ -25,9 +24,9 @@ public class StoreService {
   /**
    * Redis에 객체를 JSON(ReJSON-RL) 형태로 저장
    *
-   * @param key          Redis JSON 키
-   * @param requestStore 저장할 객체 (StoreDto)
-   * @return 저장된 객체 (StoreDto)
+   * @param key          Redis 키
+   * @param requestStore StoreDto
+   * @return StoreDto
    */
   public StoreDto saveStore(String key, StoreDto requestStore) {
     jedisCluster.jsonSetLegacy(key, requestStore);
@@ -37,8 +36,8 @@ public class StoreService {
   /**
    * 키(key)를 사용하여 Redis에 저장된 객체를 조회
    *
-   * @param key Redis JSON 키
-   * @return 경로에 해당하는 객체 (Object)
+   * @param key Redis 키
+   * @return StoreDto
    */
   public StoreDto findStore(String key) {
     return jedisCluster.jsonGet(key, StoreDto.class);
@@ -47,9 +46,9 @@ public class StoreService {
   /**
    * 키(key)와 경로(path)를 사용하여 Redis에 저장된 객체를 조회
    *
-   * @param key  Redis JSON 키
+   * @param key  Redis 키
    * @param path 경로
-   * @return 경로에 해당하는 객체 (Object)
+   * @return Object
    */
   public Object findStore(String key, Path path) {
     return jedisCluster.jsonGet(key, path);

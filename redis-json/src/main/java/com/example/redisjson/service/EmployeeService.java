@@ -26,8 +26,8 @@ public class EmployeeService {
    * EmployeeDto.Info를 Redis에 JSON 형식으로 저장
    *
    * @param key          Redis 키
-   * @param employeeInfo 저장할 객체 (EmployeeDto.Info)
-   * @return 저장된 객체 (EmployeeDto.Info)
+   * @param employeeInfo EmployeeDto.Info
+   * @return EmployeeDto.Info
    */
   public EmployeeDto.Info saveEmployeeInfo(String key, EmployeeDto.Info employeeInfo) {
     jedisComponent.setJson(key, employeeInfo, 60 * 5);
@@ -38,8 +38,8 @@ public class EmployeeService {
    * EmployeeDto를 Redis에 JSON 형식으로 저장
    *
    * @param key      Redis 키
-   * @param employee 저장할 객체 (EmployeeDto)
-   * @return 저장된 객체 (EmployeeDto)
+   * @param employee EmployeeDto
+   * @return EmployeeDto
    */
   public EmployeeDto saveEmployee(String key, EmployeeDto employee) {
     jedisComponent.setJson(key, employee, 60 * 5);
@@ -50,7 +50,7 @@ public class EmployeeService {
    * 키(key)를 사용하여 Redis에 저장된 객체를 조회
    *
    * @param key Redis 키
-   * @return 경로에 해당하는 객체 (Object)
+   * @return EmployeeDto
    */
   public EmployeeDto findEmployee(String key) {
     return jedisComponent.getJsonObject(key, EmployeeDto.class);
@@ -61,7 +61,7 @@ public class EmployeeService {
    *
    * @param key  Redis 키
    * @param path 경로
-   * @return 경로에 해당하는 객체 (List<Object>)
+   * @return List&lt;EmployeeDto.Info&lt;
    */
   public List<EmployeeDto.Info> findEmployee(String key, String path) throws Exception {
     return jedisComponent.getJsonArray(key, EmployeeDto.Info.class, path);

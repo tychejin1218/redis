@@ -4,14 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.JedisPooled;
-import redis.clients.jedis.args.ExpiryOption;
 import redis.clients.jedis.json.Path;
 
 @Slf4j
