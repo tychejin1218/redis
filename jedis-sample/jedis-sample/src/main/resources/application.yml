@@ -1,0 +1,13 @@
+# Service Post ??
+server:
+  port: 9091
+
+# Log Level ??
+logging:
+  level:
+    root: debug
+
+# Redis Cluster ??
+redis:
+  cluster:
+    nodes: 
