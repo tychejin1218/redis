@@ -33,6 +33,6 @@ public class RedisConfig {
    */
   @Bean
   public JedisCluster jedisCluster(RedisConnectionFactory redisConnectionFactory) {
-    return (JedisCluster) redisConnectionFactory.getConnection().getNativeConnection();
+    return (JedisCluster) redisConnectionFactory.getClusterConnection().getNativeConnection();
   }
 }

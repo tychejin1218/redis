@@ -1,13 +1,16 @@
-# Service Post ??
+# Service Port 설정
 server:
   port: 9091
 
-# Log Level ??
+# Log Level 설정
 logging:
   level:
     root: debug
 
-# Redis Cluster ??
+# Redis Cluster 설정
 redis:
   cluster:
-    nodes: 
+    nodes:
+      localhost:6301,
+      localhost:6302,
+      localhost:6303
