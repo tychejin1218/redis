@@ -1,0 +1,14 @@
+# Service Port ??
+server:
+  port: 9091
+
+# Log Level ??
+logging:
+  level:
+    root: debug
+
+# Redis Host ? Port ??
+redis:
+  stand-alone:
+    host: localhost
+    port: 6379
