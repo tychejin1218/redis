@@ -1,0 +1,14 @@
+# Service Post ??
+server:
+  port: 9091
+
+# Log Level ??
+logging:
+  level:
+    root: debug
+
+# Redis ??
+redis:
+  cluster:
+    nodes:
+      127.0.0.1:7001
