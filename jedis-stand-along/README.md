@@ -11,7 +11,7 @@ docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:lat
 ```
 
 - 포트 6379: Redis 서버와의 기본 연결
-- 포트 8001: RedisInsight와 같은 도구를 위한 포트
+- 포트 8001: RedisInsight와 같은 GUI 도구와의 연결
 
 [Docker Hub](https://hub.docker.com/r/redis/redis-stack)
 
@@ -94,6 +94,14 @@ public class RedisConfig {
 ## 4. RedisComponent 구현
 
 `RedisComponent` 클래스는 Jedis를 통해 데이터를 저장하고, 조회하는 기능을 제공합니다.
+
+### RedisComponent에서 사용한 Jedis 메서드
+
+- **set(String key, String value)**: 주어진 키에 문자열 값을 저장합니다. 기존 값이 있다면 덮어씁니다.
+- **expire(String key, long seconds)**: 특정 키에 대한 만료 시간을 설정합니다. 초 단위로 설정되며, 해당 시간이 지나면 키와 값이 삭제됩니다.
+- **get(String key)**: 특정 키와 연관된 값을 조회합니다. 키가 존재하지 않으면 `null`을 반환합니다.
+- **jsonSetWithEscape(String key, Object t)**: 객체를 JSON 형식으로 변환하고, 지정된 키에 저장합니다.
+- **jsonGet(String key)**: JSON 형태로 저장된 데이터를 객체로 변환하여 가져옵니다. 저장된 데이터가 없는 경우 `null`을 반환합니다.
 
 **RedisComponent.java**
 
@@ -342,7 +350,7 @@ docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:lat
 ```
 
 - 포트 6379: Redis 서버와의 기본 연결
-- 포트 8001: RedisInsight와 같은 도구를 위한 포트
+- 포트 8001: RedisInsight와 같은 GUI 도구와의 연결
 
 [Docker Hub](https://hub.docker.com/r/redis/redis-stack)
 
@@ -425,6 +433,14 @@ public class RedisConfig {
 ## 4. RedisComponent 구현
 
 `RedisComponent` 클래스는 Jedis를 통해 Redis에 데이터를 저장하고 조회할 수 있도록 합니다. JSON 데이터의 직렬화와 역직렬화를 지원합니다.
+
+### RedisComponent에서 사용한 Jedis 메서드
+
+- **expire(String key, long seconds)**: 특정 키의 만료 시간을 설정합니다. 초 단위로 설정되며, 해당 시간이 지나면 키와 값이 삭제됩니다.
+- **jsonSetWithEscape(String key, Object t)**: 객체를 JSON 형식으로 변환하고 지정된 키에 저장합니다.
+- **jsonGet(String key)**: JSON 형태로 저장된 데이터를 객체로 변환하여 가져옵니다. 저장된 데이터가 없는 경우 `null`을 반환합니다.
+- **jsonGet(String key, String path)**: 지정된 키와 경로에 해당하는 JSON 데이터를 객체로 변환하여 가져옵니다. 경로나 데이터가 유효하지 않으면
+  `null`을 반환합니다.
 
 **RedisComponent.java**
 
