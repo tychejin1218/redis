@@ -1,13 +1,13 @@
-# Service Port ??
+# Service Port 설정
 server:
   port: 9091
 
-# Log Level ??
+# Log Level 설정
 logging:
   level:
     root: debug
 
-# Redis Host ? Port ??
+# Redis 설정
 redis:
   stand-alone:
     host: localhost

@@ -1,4 +1,4 @@
-package com.example.jedisstandalong.dto;
+package com.example.jedis.dto;
 
 import lombok.Builder;
 import lombok.Getter;

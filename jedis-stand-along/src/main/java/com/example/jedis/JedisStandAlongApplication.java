@@ -1,4 +1,4 @@
-package com.example.jedisstandalong;
+package com.example.jedis;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

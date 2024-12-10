@@ -1,9 +1,9 @@
-package com.example.jedisstandalong.service;
+package com.example.jedis.service;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.example.jedisstandalong.dto.UserDto;
+import com.example.jedis.dto.UserDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;

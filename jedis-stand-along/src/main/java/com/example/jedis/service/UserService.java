@@ -1,13 +1,10 @@
-package com.example.jedisstandalong.service;
+package com.example.jedis.service;
 
-import com.example.jedisstandalong.dto.UserDto;
+import com.example.jedis.dto.UserDto;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.search.Document;
 import redis.clients.jedis.search.FTCreateParams;
@@ -22,9 +19,8 @@ import redis.clients.jedis.search.schemafields.TagField;
 import redis.clients.jedis.search.schemafields.TextField;
 
 /**
- * Indexing and querying JSON documents
- *
- * <p>https://redis.io/docs/clients/java/</p>
+ * <a href="https://redis.io/docs/latest/develop/interact/search-and-query/indexing/">Redis Query
+ * Engine > Indexing</a>
  */
 @Slf4j
 @RequiredArgsConstructor

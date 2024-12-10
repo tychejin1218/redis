@@ -1,5 +1,6 @@
-package com.example.jedisstandalong.config;
+package com.example.jedis.config;
 
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,6 @@ public class RedisConfig {
 
   @Value("${redis.stand-alone.port}")
   private String standAlonePort;
-
 
   /**
    * RedisConnectionFactory 빈을 생성
@@ -40,7 +40,7 @@ public class RedisConfig {
     JedisConnectionFactory jedisConnectionFactory =
         (JedisConnectionFactory) redisConnectionFactory;
     return new JedisPooled(
-        jedisConnectionFactory.getPoolConfig(),
+        Objects.requireNonNull(jedisConnectionFactory.getPoolConfig()),
         jedisConnectionFactory.getHostName(),
         jedisConnectionFactory.getPort());
   }
