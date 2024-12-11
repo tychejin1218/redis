@@ -1,6 +1,6 @@
 # Jedis를 활용하여 Redis에 대한 CRUD 작업을 테스트
 
-Jedis를 활용하여 Redis에 대한 CRUD 작업을 수행하는 방법에 대해 설명합니다.
+Jedis를 활용하여 Redis에 대한 CRUD 작업을 수행하는 방법을 설명하겠습니다.
 
 ## 1. Docker를 활용하여 Redis 환경 설정
 
@@ -13,7 +13,7 @@ docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:lat
 - 포트 6379: Redis 서버와의 기본 연결
 - 포트 8001: RedisInsight와 같은 GUI 도구와의 연결
 
-[Docker Hub](https://hub.docker.com/r/redis/redis-stack)
+[Docker Hub- redis/redis-stack](https://hub.docker.com/r/redis/redis-stack)
 
 ## 2. 의존성 추가
 
@@ -33,7 +33,7 @@ dependencies {
 }
 ```
 
-[Maven Repository](https://mvnrepository.com/artifact/redis.clients/jedis/5.1.0)
+[Maven Repository- Jedis](https://mvnrepository.com/artifact/redis.clients/jedis/5.1.0)
 
 ## 3. RedisConfig 설정
 
@@ -44,56 +44,47 @@ Redis 서버와의 연동을 위해 `JedisPooled` 객체를 빈으로 등록합�
 ```java
 package com.example.jedis.config;
 
-import java.util.Objects;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.JedisCluster;
 
 @Configuration
 public class RedisConfig {
 
-  @Value("${redis.stand-alone.host}")
-  private String standAloneHost;
-
-  @Value("${redis.stand-alone.port}")
-  private String standAlonePort;
+  @Value("${redis.cluster.nodes}")
+  private List<String> clusterNodes;
 
   /**
    * RedisConnectionFactory 빈을 생성
    *
-   * @return RedisConnectionFactory 빈
+   * @return RedisClusterConfiguration 빈
    */
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
-    return new JedisConnectionFactory(
-        new RedisStandaloneConfiguration(standAloneHost, Integer.parseInt(standAlonePort)));
+    return new JedisConnectionFactory(new RedisClusterConfiguration(clusterNodes));
   }
 
   /**
-   * RedisConnectionFactory를 사용하여 JedisPooled 빈을 생성
+   * RedisConnectionFactory를 사용하여 JedisCluster 빈을 생성
    *
    * @param redisConnectionFactory RedisConnectionFactory
-   * @return JedisPooled 빈
+   * @return JedisCluster 빈
    */
   @Bean
-  public JedisPooled jedisPooled(RedisConnectionFactory redisConnectionFactory) {
-    JedisConnectionFactory jedisConnectionFactory =
-        (JedisConnectionFactory) redisConnectionFactory;
-    return new JedisPooled(
-        Objects.requireNonNull(jedisConnectionFactory.getPoolConfig()),
-        jedisConnectionFactory.getHostName(),
-        jedisConnectionFactory.getPort());
+  public JedisCluster jedisCluster(RedisConnectionFactory redisConnectionFactory) {
+    return (JedisCluster) redisConnectionFactory.getClusterConnection().getNativeConnection();
   }
 }
 ```
 
 ## 4. RedisComponent 구현
 
-`RedisComponent` 클래스는 Jedis를 통해 데이터를 저장하고, 조회하는 기능을 제공합니다.
+`RedisComponent` 클래스는 Jedis를 활용해 데이터를 저장하고, 조회하는 기능을 제공합니다.
 
 ### RedisComponent에서 사용한 Jedis 메서드
 
@@ -102,6 +93,24 @@ public class RedisConfig {
 - **get(String key)**: 특정 키와 연관된 값을 조회합니다. 키가 존재하지 않으면 `null`을 반환합니다.
 - **jsonSetWithEscape(String key, Object t)**: 객체를 JSON 형식으로 변환하고, 지정된 키에 저장합니다.
 - **jsonGet(String key)**: JSON 형태로 저장된 데이터를 객체로 변환하여 가져옵니다. 저장된 데이터가 없는 경우 `null`을 반환합니다.
+
+### 참고
+
+- [Jedis GitHub Repository](https://github.com/redis/jedis)
+- [Jedis JavaDocs (공식 API 문서)](https://javadoc.io/doc/redis.clients/jedis/latest/index.html)
+- [Redis 공식 사이트 (Redis Commands)](https://redis.io/docs/latest/commands/)
+
+### RedisComponent의 메서드
+
+`RedisComponent`는 Jedis 메서드들을 활용하여 Redis 서버와의 연동을 위해 필요한 메서드를 제공합니다.
+
+- **`setString(String key, String value, long ttl)`**: `set` 메서드를 사용하여 문자열 데이터를 Redis에 저장하고,
+  `expire` 메서드를 이용해 키의 만료 시간을 설정합니다.
+- **`getString(String key)`**: `get` 메서드를 사용하여 Redis에 저장된 문자열 값을 조회합니다. 키가 존재하지 않으면 `null`을 반환합니다.
+- **`setJson(String key, T t, long ttl)`**: `jsonSetWithEscape`를 사용하여 객체를 JSON으로 변환한 후 저장하고,
+  `expire`를 활용하여 키의 만료 시간을 설정합니다.
+- **`getJsonObject(String key, Class<T> clazz)`**: `jsonGet`을 사용해 특정 키의 데이터를 가져오고, 지정된 클래스 타입(
+  `clazz`)으로 변환하여 반환합니다.
 
 **RedisComponent.java**
 
@@ -118,7 +127,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.json.Path2;
 
 @Slf4j
@@ -126,7 +135,7 @@ import redis.clients.jedis.json.Path2;
 @Component
 public class RedisComponent {
 
-  private final JedisPooled jedisPooled;
+  private final JedisCluster jedisCluster;
   private final ObjectMapper objectMapper;
 
   /**
@@ -137,8 +146,8 @@ public class RedisComponent {
    * @param ttl   만료 시간(초 단위)
    */
   public void setString(String key, String value, long ttl) {
-    jedisPooled.set(key, value);
-    jedisPooled.expire(key, ttl);
+    jedisCluster.set(key, value);
+    jedisCluster.expire(key, ttl);
   }
 
   /**
@@ -148,7 +157,7 @@ public class RedisComponent {
    * @return 저장된 문자열을 반환. 키가 존재하지 않으면 null을 반환
    */
   public String getString(String key) {
-    return jedisPooled.get(key);
+    return jedisCluster.get(key);
   }
 
   /**
@@ -160,8 +169,8 @@ public class RedisComponent {
    * @param <T> 저장할 객체의 유형
    */
   public <T> void setJson(String key, T t, long ttl) {
-    jedisPooled.jsonSetWithEscape(key, t);
-    jedisPooled.expire(key, ttl);
+    jedisCluster.jsonSetWithEscape(key, t);
+    jedisCluster.expire(key, ttl);
   }
 
   /**
@@ -175,7 +184,7 @@ public class RedisComponent {
   public <T> T getJsonObject(String key, Class<T> clazz) {
 
     try {
-      Object object = jedisPooled.jsonGet(key);
+      Object object = jedisCluster.jsonGet(key);
 
       if (object != null && !ObjectUtils.isEmpty(object.toString())) {
         String jsonString = objectMapper.writeValueAsString(object);
@@ -194,6 +203,20 @@ public class RedisComponent {
 
 JUnit을 사용하여 `RedisComponent`의 기능을 테스트하는 코드를 작성합니다. 이 코드는 문자열 저장 및 조회, 단일 사용자 저장 및 조회, 사용자 목록 저장 및
 조회를 다룹니다.
+
+### 메서드 설명
+
+1. **`testSetAndGetString()`**
+
+- Redis에 문자열 데이터를 저장하고(`setString`), 저장된 데이터를 다시 조회(`getString`)하여 유효성을 테스트합니다.
+
+2. **`testSetAndGetJsonUser()`**
+
+- 단일 사용자 객체를 Redis에 JSON 형식으로 저장(`setJson`)하고, 이를 객체(`getJsonObject`)로 다시 조회하여 유효성을 확인합니다.
+
+3. **`testSetAndGetJsonUserList()`**
+
+- 사용자 객체들의 리스트를 Redis에 JSON 형식으로 저장(`setJson`)하고, 이를 리스트 형태의 객체로 다시 조회하여 유효성을 테스트합니다.
 
 **JedisGuideTest.java**
 
@@ -341,6 +364,98 @@ class JedisGuideTest {
 
 Jedis 라이브러리를 사용하여 Redis에 JSON Path 기능을 활용하는 방법을 설명하겠습니다.
 
+## JSONPath & Redis JSON 개요
+
+JSONPath는 JSON 문서에서 데이터를 검색하거나 필터링할 때 유용한 쿼리 언어입니다. Redis는 **JSON 데이터 타입**을 직접 지원하며, JSONPath를 통해 데이터를 효과적으로 쿼리할 수 있습니다.
+
+### JSONPath 주요 표현식
+
+| 방식                 | 표현식                           | 예제 및 설명                                                                 |
+|----------------------|----------------------------------|-----------------------------------------------------------------------------|
+| **전체 매칭**       | `$`                              | JSON 문서의 루트 노드를 선택합니다.<br>예: `$`                              |
+| **경로 접근**       | `.`                              | 특정 속성을 선택합니다.<br>예: `$.store.book`                              |
+| **배열 처리**       | `[index]` 또는 `[*]`             | 배열 인덱스로 접근하거나 배열의 모든 요소를 처리합니다.<br>예: `$.store.book[0]` (첫 번째 책), `$.store.book[*]` (모든 책) |
+| **재귀 탐색**       | `..`                             | 모든 하위 노드에서 속성을 재귀적으로 검색합니다.<br>예: `$..author` (JSON 내 모든 `author` 속성 검색) |
+| **조건 필터링**     | `?(expression)`                  | 조건식에 따라 데이터를 필터링합니다.<br>예: `$..book[?(@.price < 10)]` (가격이 $10 미만인 책만 검색) |
+| **존재 체크**       | `@`                              | 조건 식에서 현재 항목의 값을 참조합니다.<br>예: `$..book[?(@.isbn)]` (ISBN 값이 존재하는 책만 검색) |
+| **슬라이스(Slice)** | `[start:end]`, `[start:]`, `[:end]` | 배열의 특정 범위 데이터를 가져옵니다.<br>예: `$.store.book[0:2]` (처음 두 권의 책) |
+
+---
+
+### Redis JSONPath 활용 예제
+다음은 Redis에 저장된 JSON 데이터를 바탕으로 JSONPath를 활용하는 예제입니다.
+
+```json
+{
+  "store": {
+    "book": [
+      {
+        "category": "reference",
+        "author": "Nigel Rees",
+        "title": "Sayings of the Century",
+        "isbn": null,
+        "price": 8.95,
+        "inStock": true,
+        "sold": true
+      },
+      {
+        "category": "fiction",
+        "author": "Evelyn Waugh",
+        "title": "Sword of Honour",
+        "isbn": null,
+        "price": 12.99,
+        "inStock": false,
+        "sold": true
+      },
+      {
+        "category": "fiction",
+        "author": "Herman Melville",
+        "title": "Moby Dick",
+        "isbn": "0-553-21311-3",
+        "price": 8.99,
+        "inStock": true,
+        "sold": false
+      },
+      {
+        "category": "fiction",
+        "author": "J. R. R. Tolkien",
+        "title": "The Lord of the Rings",
+        "isbn": "0-395-19395-8",
+        "price": 22.99,
+        "inStock": false,
+        "sold": false
+      }
+    ],
+    "bicycle": {
+      "color": "red",
+      "price": 19.95,
+      "inStock": true,
+      "sold": false
+    }
+  }
+}
+```
+
+#### JSONPath 쿼리 및 출력 결과
+
+| JSONPath 쿼리                              | 설명                                                       | 출력 결과                                                                                 |
+|--------------------------------------------|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `$.store.book[*].author`                   | `store`의 각 `book`의 `author`를 가져옵니다.               | `["Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien"]`                   |
+| `$..author`                                | JSON의 전체 `author`를 가져옵니다.                         | `["Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien"]`                   |
+| `$.store.*`                                | `store` 객체의 모든 속성을 가져옵니다.                     | `[[{"sold":true,"author":"Nigel Rees","price":8.95,"inStock":true,"category":"reference","title":"Sayings of the Century"},{"sold":true,"author":"Evelyn Waugh","price":12.99,"inStock":false,"category":"fiction","title":"Sword of Honour"},{"sold":false,"author":"Herman Melville","price":8.99,"isbn":"0-553-21311-3","inStock":true,"category":"fiction","title":"Moby Dick"},{"sold":false,"author":"J. R. R. Tolkien","price":22.99,"isbn":"0-395-19395-8","inStock":false,"category":"fiction","title":"The Lord of the Rings"}],{"sold":false,"color":"red","price":19.95,"inStock":true}]`   |
+| `$..book[?(@.isbn)]`                       | ISBN이 있는 책을 가져옵니다.                               | `[{"sold":false,"author":"Herman Melville","price":8.99,"isbn":"0-553-21311-3","inStock":true,"category":"fiction","title":"Moby Dick"},{"sold":false,"author":"J. R. R. Tolkien","price":22.99,"isbn":"0-395-19395-8","inStock":false,"category":"fiction","title":"The Lord of the Rings"}]` |
+| `$..book[?(@.price < 10)]`                 | 가격이 `$10 미만`인 모든 책을 가져옵니다.                  | `[{"sold":true,"author":"Nigel Rees","price":8.95,"inStock":true,"category":"reference","title":"Sayings of the Century"},{"sold":false,"author":"Herman Melville","price":8.99,"isbn":"0-553-21311-3","inStock":true,"category":"fiction","title":"Moby Dick"}]` |
+| `$..book[?(@.price >= 10 && @.price <= 100)]` | 가격이 `$10 이상 $100 이하`인 모든 책을 가져옵니다.         | `[{"sold":true,"author":"Evelyn Waugh","price":12.99,"inStock":false,"category":"fiction","title":"Sword of Honour"},{"sold":false,"author":"J. R. R. Tolkien","price":22.99,"isbn":"0-395-19395-8","inStock":false,"category":"fiction","title":"The Lord of the Rings"}]` |
+| `$.store.book[?(@.["category"] == "fiction")]` | `category`가 `fiction`인 모든 책을 가져옵니다.             | `[{"sold":true,"author":"Evelyn Waugh","price":12.99,"inStock":false,"category":"fiction","title":"Sword of Honour"},{"sold":false,"author":"Herman Melville","price":8.99,"isbn":"0-553-21311-3","inStock":true,"category":"fiction","title":"Moby Dick"},{"sold":false,"author":"J. R. R. Tolkien","price":22.99,"isbn":"0-395-19395-8","inStock":false,"category":"fiction","title":"The Lord of the Rings"}]` |
+
+---
+
+위의 결과는 제공된 JSON 데이터를 대상으로 JSONPath 쿼리를 실행한 결과입니다. Redis JSON 모듈과 Jedis를 사용하면 이러한 JSONPath 쿼리를 사용해 데이터를 Redis에서 효율적으로 조회할 수 있습니다.
+
+[Redis JSONPath 문서](https://redis.io/docs/latest/develop/data-types/json/path/#jsonpath-support)
+
+---
+
 ## 1. Docker를 활용하여 Redis 환경 설정
 
 Docker를 활용하여 Redis 서버를 설치하고 실행합니다.
@@ -352,7 +467,7 @@ docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:lat
 - 포트 6379: Redis 서버와의 기본 연결
 - 포트 8001: RedisInsight와 같은 GUI 도구와의 연결
 
-[Docker Hub](https://hub.docker.com/r/redis/redis-stack)
+[Docker Hub- redis/redis-stack](https://hub.docker.com/r/redis/redis-stack)
 
 ## 2. 의존성 추가
 
@@ -372,7 +487,7 @@ dependencies {
 }
 ```
 
-[Maven Repository](https://mvnrepository.com/artifact/redis.clients/jedis/5.1.0)
+[Maven Repository- Jedis](https://mvnrepository.com/artifact/redis.clients/jedis/5.1.0)
 
 ## 3. RedisConfig 설정
 
@@ -383,56 +498,47 @@ Redis 서버와의 연동을 위해 `JedisPooled` 객체를 빈으로 등록합�
 ```java
 package com.example.jedis.config;
 
-import java.util.Objects;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.JedisCluster;
 
 @Configuration
 public class RedisConfig {
 
-  @Value("${redis.stand-alone.host}")
-  private String standAloneHost;
-
-  @Value("${redis.stand-alone.port}")
-  private String standAlonePort;
+  @Value("${redis.cluster.nodes}")
+  private List<String> clusterNodes;
 
   /**
    * RedisConnectionFactory 빈을 생성
    *
-   * @return RedisConnectionFactory 빈
+   * @return RedisClusterConfiguration 빈
    */
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
-    return new JedisConnectionFactory(
-        new RedisStandaloneConfiguration(standAloneHost, Integer.parseInt(standAlonePort)));
+    return new JedisConnectionFactory(new RedisClusterConfiguration(clusterNodes));
   }
 
   /**
-   * RedisConnectionFactory를 사용하여 JedisPooled 빈을 생성
+   * RedisConnectionFactory를 사용하여 JedisCluster 빈을 생성
    *
    * @param redisConnectionFactory RedisConnectionFactory
-   * @return JedisPooled 빈
+   * @return JedisCluster 빈
    */
   @Bean
-  public JedisPooled jedisPooled(RedisConnectionFactory redisConnectionFactory) {
-    JedisConnectionFactory jedisConnectionFactory =
-        (JedisConnectionFactory) redisConnectionFactory;
-    return new JedisPooled(
-        Objects.requireNonNull(jedisConnectionFactory.getPoolConfig()),
-        jedisConnectionFactory.getHostName(),
-        jedisConnectionFactory.getPort());
+  public JedisCluster jedisCluster(RedisConnectionFactory redisConnectionFactory) {
+    return (JedisCluster) redisConnectionFactory.getClusterConnection().getNativeConnection();
   }
 }
 ```
 
 ## 4. RedisComponent 구현
 
-`RedisComponent` 클래스는 Jedis를 통해 Redis에 데이터를 저장하고 조회할 수 있도록 합니다. JSON 데이터의 직렬화와 역직렬화를 지원합니다.
+`RedisComponent` 클래스는 Jedis를 활용해 객체의 JSON 변환 및 저장, 조회와 같은 기능을 제공합니다.
 
 ### RedisComponent에서 사용한 Jedis 메서드
 
@@ -441,6 +547,25 @@ public class RedisConfig {
 - **jsonGet(String key)**: JSON 형태로 저장된 데이터를 객체로 변환하여 가져옵니다. 저장된 데이터가 없는 경우 `null`을 반환합니다.
 - **jsonGet(String key, String path)**: 지정된 키와 경로에 해당하는 JSON 데이터를 객체로 변환하여 가져옵니다. 경로나 데이터가 유효하지 않으면
   `null`을 반환합니다.
+
+### 참고
+
+- [Jedis GitHub Repository](https://github.com/redis/jedis)
+- [Jedis JavaDocs (공식 API 문서)](https://javadoc.io/doc/redis.clients/jedis/latest/index.html)
+- [Redis 공식 사이트 (Redis Commands)](https://redis.io/docs/latest/commands/)
+
+### RedisComponent의 메서드
+
+`RedisComponent`는 Jedis 메서드들을 활용하여 Redis 서버와의 연동을 위해 필요한 메서드를 제공합니다.
+
+- **`setJson(String key, T t, long ttl)`**: `jsonSetWithEscape`를 사용하여 객체를 JSON으로 변환한 후 저장하고,
+  `expire`를 활용하여 키의 만료 시간을 설정합니다.
+- **`getJsonArray(String key, String path)`**: `jsonGet` 메서드 호출 시 경로(`path`)를 추가하여 지정된 경로의 JSON 배열을
+  조회합니다. 데이터가 없는 경우 `null`을 반환합니다.
+- **`getJsonObject(String key, Class<T> clazz)`**: `jsonGet`을 사용해 특정 키의 데이터를 가져오고, 지정된 클래스 타입(
+  `clazz`)으로 변환하여 반환합니다.
+- **`getJsonList(String key, Class<T> clazz, String path)`**: `jsonGet`을 활용하여 경로(`path`)에 해당하는 데이터를
+  조회하고, 이를 리스트 형태로 변환하여 반환합니다.
 
 **RedisComponent.java**
 
@@ -457,7 +582,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.json.Path2;
 
 @Slf4j
@@ -465,7 +590,7 @@ import redis.clients.jedis.json.Path2;
 @Component
 public class RedisComponent {
 
-  private final JedisPooled jedisPooled;
+  private final JedisCluster jedisCluster;
   private final ObjectMapper objectMapper;
 
   /**
@@ -477,8 +602,8 @@ public class RedisComponent {
    * @param <T> 저장할 객체의 유형
    */
   public <T> void setJson(String key, T t, long ttl) {
-    jedisPooled.jsonSetWithEscape(key, t);
-    jedisPooled.expire(key, ttl);
+    jedisCluster.jsonSetWithEscape(key, t);
+    jedisCluster.expire(key, ttl);
   }
 
   /**
@@ -489,7 +614,7 @@ public class RedisComponent {
    * @return 키와 경로에 해당하는 JSON 배열을 반환. 키 또는 경로가 유효하지 않으면 null을 반환
    */
   public JSONArray getJsonArray(String key, String path) {
-    return (JSONArray) jedisPooled.jsonGet(key, Path2.of(path));
+    return (JSONArray) jedisCluster.jsonGet(key, Path2.of(path));
   }
 
   /**
@@ -503,7 +628,7 @@ public class RedisComponent {
   public <T> T getJsonObject(String key, Class<T> clazz) {
 
     try {
-      Object object = jedisPooled.jsonGet(key);
+      Object object = jedisCluster.jsonGet(key);
 
       if (object != null && !ObjectUtils.isEmpty(object.toString())) {
         String jsonString = objectMapper.writeValueAsString(object);
@@ -528,12 +653,12 @@ public class RedisComponent {
   public <T> List<T> getJsonList(String key, Class<T> clazz, String path) {
 
     try {
-      Object object = jedisPooled.jsonGet(key, Path2.of(path));
+      Object object = jedisCluster.jsonGet(key, Path2.of(path));
 
       if (object != null && !ObjectUtils.isEmpty(object.toString())) {
         TypeFactory typeFactory = objectMapper.getTypeFactory();
         return objectMapper.readValue(object.toString(),
-            typeFactory.constructCollectionType(List.class, clazz));
+                typeFactory.constructCollectionType(List.class, clazz));
       }
 
     } catch (JsonProcessingException e) {
@@ -548,6 +673,21 @@ public class RedisComponent {
 ## 5. 테스트 클래스 구현
 
 `JsonDataTypeTest` 클래스를 통해 Redis에 JSON Path 기능을 테스트합니다.
+
+### 메서드 설명
+
+1. **`testSetAndGetJsonObject()`**
+
+- Redis에 객체 데이터를 JSON 형식으로 저장(`setJson`)하고, 이를 객체(`getJsonObject`)로 조회하여 유효성을 확인합니다.
+
+2. **`testSetAndGetJsonArray()`**
+
+- Redis에서 특정 JSON Path 경로를 사용하여 `JSONArray` 데이터를 조회(`getJsonArray`)합니다. 여러 JSON Path를 통해 데이터를 확인하며,
+  유효성을 테스트합니다.
+
+3. **`testSetAndGetJsonList()`**
+
+- Redis에서 특정 JSON Path 경로를 통해 리스트 형태의 데이터를 조회(`getJsonList`)하여 유효성을 확인합니다.
 
 **JsonDataTypeTest.java**
 
