@@ -103,17 +103,23 @@ public class RedisConfig {
 - **jsonSetWithEscape(String key, Object t)**: 객체를 JSON 형식으로 변환하고, 지정된 키에 저장합니다.
 - **jsonGet(String key)**: JSON 형태로 저장된 데이터를 객체로 변환하여 가져옵니다. 저장된 데이터가 없는 경우 `null`을 반환합니다.
 
-[Jedis GitHub Repository](https://github.com/redis/jedis)
-[Redis 공식 사이트 (Redis Commands)](https://redis.io/docs/latest/commands/)
+### 참고
+
+- [Jedis GitHub Repository](https://github.com/redis/jedis)
+- [Jedis JavaDocs (공식 API 문서)](https://javadoc.io/doc/redis.clients/jedis/latest/index.html)
+- [Redis 공식 사이트 (Redis Commands)](https://redis.io/docs/latest/commands/)
 
 ### RedisComponent의 메서드
 
 `RedisComponent`는 Jedis 메서드들을 활용하여 Redis 서버와의 연동을 위해 필요한 메서드를 제공합니다.
 
-- **`setString(String key, String value, long ttl)`**: `set` 메서드를 사용하여 문자열 데이터를 Redis에 저장하고, `expire` 메서드를 이용해 키의 만료 시간을 설정합니다.
+- **`setString(String key, String value, long ttl)`**: `set` 메서드를 사용하여 문자열 데이터를 Redis에 저장하고,
+  `expire` 메서드를 이용해 키의 만료 시간을 설정합니다.
 - **`getString(String key)`**: `get` 메서드를 사용하여 Redis에 저장된 문자열 값을 조회합니다. 키가 존재하지 않으면 `null`을 반환합니다.
-- **`setJson(String key, T t, long ttl)`**: `jsonSetWithEscape`를 사용하여 객체를 JSON으로 변환한 후 저장하고, `expire`를 활용하여 키의 만료 시간을 설정합니다.
-- **`getJsonObject(String key, Class<T> clazz)`**: `jsonGet`을 사용해 특정 키의 데이터를 가져오고, 지정된 클래스 타입(`clazz`)으로 변환하여 반환합니다.
+- **`setJson(String key, T t, long ttl)`**: `jsonSetWithEscape`를 사용하여 객체를 JSON으로 변환한 후 저장하고,
+  `expire`를 활용하여 키의 만료 시간을 설정합니다.
+- **`getJsonObject(String key, Class<T> clazz)`**: `jsonGet`을 사용해 특정 키의 데이터를 가져오고, 지정된 클래스 타입(
+  `clazz`)으로 변환하여 반환합니다.
 
 **RedisComponent.java**
 
@@ -206,6 +212,20 @@ public class RedisComponent {
 
 JUnit을 사용하여 `RedisComponent`의 기능을 테스트하는 코드를 작성합니다. 이 코드는 문자열 저장 및 조회, 단일 사용자 저장 및 조회, 사용자 목록 저장 및
 조회를 다룹니다.
+
+### 메서드 설명
+
+1. **`testSetAndGetString()`**
+
+- Redis에 문자열 데이터를 저장하고(`setString`), 저장된 데이터를 다시 조회(`getString`)하여 유효성을 테스트합니다.
+
+2. **`testSetAndGetJsonUser()`**
+
+- 단일 사용자 객체를 Redis에 JSON 형식으로 저장(`setJson`)하고, 이를 객체(`getJsonObject`)로 다시 조회하여 유효성을 확인합니다.
+
+3. **`testSetAndGetJsonUserList()`**
+
+- 사용자 객체들의 리스트를 Redis에 JSON 형식으로 저장(`setJson`)하고, 이를 리스트 형태의 객체로 다시 조회하여 유효성을 테스트합니다.
 
 **JedisGuideTest.java**
 
@@ -454,17 +474,24 @@ public class RedisConfig {
 - **jsonGet(String key, String path)**: 지정된 키와 경로에 해당하는 JSON 데이터를 객체로 변환하여 가져옵니다. 경로나 데이터가 유효하지 않으면
   `null`을 반환합니다.
 
-[Jedis GitHub Repository](https://github.com/redis/jedis)
-[Redis 공식 사이트 (Redis Commands)](https://redis.io/docs/latest/commands/)
+### 참고
+
+- [Jedis GitHub Repository](https://github.com/redis/jedis)
+- [Jedis JavaDocs (공식 API 문서)](https://javadoc.io/doc/redis.clients/jedis/latest/index.html)
+- [Redis 공식 사이트 (Redis Commands)](https://redis.io/docs/latest/commands/)
 
 ### RedisComponent의 메서드
 
 `RedisComponent`는 Jedis 메서드들을 활용하여 Redis 서버와의 연동을 위해 필요한 메서드를 제공합니다.
 
-- **`setJson(String key, T t, long ttl)`**: `jsonSetWithEscape`를 사용하여 객체를 JSON으로 변환한 후 저장하고, `expire`를 활용하여 키의 만료 시간을 설정합니다.
-- **`getJsonArray(String key, String path)`**: `jsonGet` 메서드 호출 시 경로(`path`)를 추가하여 지정된 경로의 JSON 배열을 조회합니다. 데이터가 없는 경우 `null`을 반환합니다.
-- **`getJsonObject(String key, Class<T> clazz)`**: `jsonGet`을 사용해 특정 키의 데이터를 가져오고, 지정된 클래스 타입(`clazz`)으로 변환하여 반환합니다.
-- **`getJsonList(String key, Class<T> clazz, String path)`**: `jsonGet`을 활용하여 경로(`path`)에 해당하는 데이터를 조회하고, 이를 리스트 형태로 변환하여 반환합니다.
+- **`setJson(String key, T t, long ttl)`**: `jsonSetWithEscape`를 사용하여 객체를 JSON으로 변환한 후 저장하고,
+  `expire`를 활용하여 키의 만료 시간을 설정합니다.
+- **`getJsonArray(String key, String path)`**: `jsonGet` 메서드 호출 시 경로(`path`)를 추가하여 지정된 경로의 JSON 배열을
+  조회합니다. 데이터가 없는 경우 `null`을 반환합니다.
+- **`getJsonObject(String key, Class<T> clazz)`**: `jsonGet`을 사용해 특정 키의 데이터를 가져오고, 지정된 클래스 타입(
+  `clazz`)으로 변환하여 반환합니다.
+- **`getJsonList(String key, Class<T> clazz, String path)`**: `jsonGet`을 활용하여 경로(`path`)에 해당하는 데이터를
+  조회하고, 이를 리스트 형태로 변환하여 반환합니다.
 
 **RedisComponent.java**
 
@@ -572,6 +599,21 @@ public class RedisComponent {
 ## 5. 테스트 클래스 구현
 
 `JsonDataTypeTest` 클래스를 통해 Redis에 JSON Path 기능을 테스트합니다.
+
+### 메서드 설명
+
+1. **`testSetAndGetJsonObject()`**
+
+- Redis에 객체 데이터를 JSON 형식으로 저장(`setJson`)하고, 이를 객체(`getJsonObject`)로 조회하여 유효성을 확인합니다.
+
+2. **`testSetAndGetJsonArray()`**
+
+- Redis에서 특정 JSON Path 경로를 사용하여 `JSONArray` 데이터를 조회(`getJsonArray`)합니다. 여러 JSON Path를 통해 데이터를 확인하며,
+  유효성을 테스트합니다.
+
+3. **`testSetAndGetJsonList()`**
+
+- Redis에서 특정 JSON Path 경로를 통해 리스트 형태의 데이터를 조회(`getJsonList`)하여 유효성을 확인합니다.
 
 **JsonDataTypeTest.java**
 
