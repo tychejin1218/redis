@@ -13,7 +13,7 @@ docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:lat
 - 포트 6379: Redis 서버와의 기본 연결
 - 포트 8001: RedisInsight와 같은 GUI 도구와의 연결
 
-[Docker Hub](https://hub.docker.com/r/redis/redis-stack)
+[Docker Hub- redis/redis-stack](https://hub.docker.com/r/redis/redis-stack)
 
 ## 2. 의존성 추가
 
@@ -33,7 +33,7 @@ dependencies {
 }
 ```
 
-[Maven Repository](https://mvnrepository.com/artifact/redis.clients/jedis/5.1.0)
+[Maven Repository- Jedis](https://mvnrepository.com/artifact/redis.clients/jedis/5.1.0)
 
 ## 3. RedisConfig 설정
 
@@ -102,6 +102,9 @@ public class RedisConfig {
 - **get(String key)**: 특정 키와 연관된 값을 조회합니다. 키가 존재하지 않으면 `null`을 반환합니다.
 - **jsonSetWithEscape(String key, Object t)**: 객체를 JSON 형식으로 변환하고, 지정된 키에 저장합니다.
 - **jsonGet(String key)**: JSON 형태로 저장된 데이터를 객체로 변환하여 가져옵니다. 저장된 데이터가 없는 경우 `null`을 반환합니다.
+
+[Jedis GitHub Repository](https://github.com/redis/jedis)
+[Redis 공식 사이트 (Redis Commands)](https://redis.io/docs/latest/commands/)
 
 ### RedisComponent의 메서드
 
@@ -361,7 +364,7 @@ docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:lat
 - 포트 6379: Redis 서버와의 기본 연결
 - 포트 8001: RedisInsight와 같은 GUI 도구와의 연결
 
-[Docker Hub](https://hub.docker.com/r/redis/redis-stack)
+[Docker Hub- redis/redis-stack](https://hub.docker.com/r/redis/redis-stack)
 
 ## 2. 의존성 추가
 
@@ -381,7 +384,7 @@ dependencies {
 }
 ```
 
-[Maven Repository](https://mvnrepository.com/artifact/redis.clients/jedis/5.1.0)
+[Maven Repository- Jedis](https://mvnrepository.com/artifact/redis.clients/jedis/5.1.0)
 
 ## 3. RedisConfig 설정
 
@@ -450,6 +453,9 @@ public class RedisConfig {
 - **jsonGet(String key)**: JSON 형태로 저장된 데이터를 객체로 변환하여 가져옵니다. 저장된 데이터가 없는 경우 `null`을 반환합니다.
 - **jsonGet(String key, String path)**: 지정된 키와 경로에 해당하는 JSON 데이터를 객체로 변환하여 가져옵니다. 경로나 데이터가 유효하지 않으면
   `null`을 반환합니다.
+
+[Jedis GitHub Repository](https://github.com/redis/jedis)
+[Redis 공식 사이트 (Redis Commands)](https://redis.io/docs/latest/commands/)
 
 ### RedisComponent의 메서드
 
