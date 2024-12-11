@@ -373,6 +373,98 @@ class JedisGuideTest {
 
 Jedis 라이브러리를 사용하여 Redis에 JSON Path 기능을 활용하는 방법을 설명하겠습니다.
 
+## JSONPath & Redis JSON 개요
+
+JSONPath는 JSON 문서에서 데이터를 검색하거나 필터링할 때 유용한 쿼리 언어입니다. Redis는 **JSON 데이터 타입**을 직접 지원하며, JSONPath를 통해 데이터를 효과적으로 쿼리할 수 있습니다.
+
+### JSONPath 주요 표현식
+
+| 방식                 | 표현식                           | 예제 및 설명                                                                 |
+|----------------------|----------------------------------|-----------------------------------------------------------------------------|
+| **전체 매칭**       | `$`                              | JSON 문서의 루트 노드를 선택합니다.<br>예: `$`                              |
+| **경로 접근**       | `.`                              | 특정 속성을 선택합니다.<br>예: `$.store.book`                              |
+| **배열 처리**       | `[index]` 또는 `[*]`             | 배열 인덱스로 접근하거나 배열의 모든 요소를 처리합니다.<br>예: `$.store.book[0]` (첫 번째 책), `$.store.book[*]` (모든 책) |
+| **재귀 탐색**       | `..`                             | 모든 하위 노드에서 속성을 재귀적으로 검색합니다.<br>예: `$..author` (JSON 내 모든 `author` 속성 검색) |
+| **조건 필터링**     | `?(expression)`                  | 조건식에 따라 데이터를 필터링합니다.<br>예: `$..book[?(@.price < 10)]` (가격이 $10 미만인 책만 검색) |
+| **존재 체크**       | `@`                              | 조건 식에서 현재 항목의 값을 참조합니다.<br>예: `$..book[?(@.isbn)]` (ISBN 값이 존재하는 책만 검색) |
+| **슬라이스(Slice)** | `[start:end]`, `[start:]`, `[:end]` | 배열의 특정 범위 데이터를 가져옵니다.<br>예: `$.store.book[0:2]` (처음 두 권의 책) |
+
+---
+
+### Redis JSONPath 활용 예제
+다음은 Redis에 저장된 JSON 데이터를 바탕으로 JSONPath를 활용하는 예제입니다.
+
+```json
+{
+  "store": {
+    "book": [
+      {
+        "category": "reference",
+        "author": "Nigel Rees",
+        "title": "Sayings of the Century",
+        "isbn": null,
+        "price": 8.95,
+        "inStock": true,
+        "sold": true
+      },
+      {
+        "category": "fiction",
+        "author": "Evelyn Waugh",
+        "title": "Sword of Honour",
+        "isbn": null,
+        "price": 12.99,
+        "inStock": false,
+        "sold": true
+      },
+      {
+        "category": "fiction",
+        "author": "Herman Melville",
+        "title": "Moby Dick",
+        "isbn": "0-553-21311-3",
+        "price": 8.99,
+        "inStock": true,
+        "sold": false
+      },
+      {
+        "category": "fiction",
+        "author": "J. R. R. Tolkien",
+        "title": "The Lord of the Rings",
+        "isbn": "0-395-19395-8",
+        "price": 22.99,
+        "inStock": false,
+        "sold": false
+      }
+    ],
+    "bicycle": {
+      "color": "red",
+      "price": 19.95,
+      "inStock": true,
+      "sold": false
+    }
+  }
+}
+```
+
+#### JSONPath 쿼리 및 출력 결과
+
+| JSONPath 쿼리                              | 설명                                                       | 출력 결과                                                                                 |
+|--------------------------------------------|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `$.store.book[*].author`                   | `store`의 각 `book`의 `author`를 가져옵니다.               | `["Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien"]`                   |
+| `$..author`                                | JSON의 전체 `author`를 가져옵니다.                         | `["Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien"]`                   |
+| `$.store.*`                                | `store` 객체의 모든 속성을 가져옵니다.                     | `[[{"sold":true,"author":"Nigel Rees","price":8.95,"inStock":true,"category":"reference","title":"Sayings of the Century"},{"sold":true,"author":"Evelyn Waugh","price":12.99,"inStock":false,"category":"fiction","title":"Sword of Honour"},{"sold":false,"author":"Herman Melville","price":8.99,"isbn":"0-553-21311-3","inStock":true,"category":"fiction","title":"Moby Dick"},{"sold":false,"author":"J. R. R. Tolkien","price":22.99,"isbn":"0-395-19395-8","inStock":false,"category":"fiction","title":"The Lord of the Rings"}],{"sold":false,"color":"red","price":19.95,"inStock":true}]`   |
+| `$..book[?(@.isbn)]`                       | ISBN이 있는 책을 가져옵니다.                               | `[{"sold":false,"author":"Herman Melville","price":8.99,"isbn":"0-553-21311-3","inStock":true,"category":"fiction","title":"Moby Dick"},{"sold":false,"author":"J. R. R. Tolkien","price":22.99,"isbn":"0-395-19395-8","inStock":false,"category":"fiction","title":"The Lord of the Rings"}]` |
+| `$..book[?(@.price < 10)]`                 | 가격이 `$10 미만`인 모든 책을 가져옵니다.                  | `[{"sold":true,"author":"Nigel Rees","price":8.95,"inStock":true,"category":"reference","title":"Sayings of the Century"},{"sold":false,"author":"Herman Melville","price":8.99,"isbn":"0-553-21311-3","inStock":true,"category":"fiction","title":"Moby Dick"}]` |
+| `$..book[?(@.price >= 10 && @.price <= 100)]` | 가격이 `$10 이상 $100 이하`인 모든 책을 가져옵니다.         | `[{"sold":true,"author":"Evelyn Waugh","price":12.99,"inStock":false,"category":"fiction","title":"Sword of Honour"},{"sold":false,"author":"J. R. R. Tolkien","price":22.99,"isbn":"0-395-19395-8","inStock":false,"category":"fiction","title":"The Lord of the Rings"}]` |
+| `$.store.book[?(@.["category"] == "fiction")]` | `category`가 `fiction`인 모든 책을 가져옵니다.             | `[{"sold":true,"author":"Evelyn Waugh","price":12.99,"inStock":false,"category":"fiction","title":"Sword of Honour"},{"sold":false,"author":"Herman Melville","price":8.99,"isbn":"0-553-21311-3","inStock":true,"category":"fiction","title":"Moby Dick"},{"sold":false,"author":"J. R. R. Tolkien","price":22.99,"isbn":"0-395-19395-8","inStock":false,"category":"fiction","title":"The Lord of the Rings"}]` |
+
+---
+
+위의 결과는 제공된 JSON 데이터를 대상으로 JSONPath 쿼리를 실행한 결과입니다. Redis JSON 모듈과 Jedis를 사용하면 이러한 JSONPath 쿼리를 사용해 데이터를 Redis에서 효율적으로 조회할 수 있습니다.
+
+[Redis JSONPath 문서](https://redis.io/docs/latest/develop/data-types/json/path/#jsonpath-support)
+
+---
+
 ## 1. Docker를 활용하여 Redis 환경 설정
 
 Docker를 활용하여 Redis 서버를 설치하고 실행합니다.
