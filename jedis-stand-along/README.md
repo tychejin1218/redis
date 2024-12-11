@@ -1,6 +1,6 @@
 # Jedis를 활용하여 Redis에 대한 CRUD 작업을 테스트
 
-Jedis를 활용하여 Redis에 대한 CRUD 작업을 수행하는 방법에 대해 설명합니다.
+Jedis를 활용하여 Redis에 대한 CRUD 작업을 수행하는 방법을 설명하겠습니다.
 
 ## 1. Docker를 활용하여 Redis 환경 설정
 
@@ -93,7 +93,7 @@ public class RedisConfig {
 
 ## 4. RedisComponent 구현
 
-`RedisComponent` 클래스는 Jedis를 통해 데이터를 저장하고, 조회하는 기능을 제공합니다.
+`RedisComponent` 클래스는 Jedis를 활용해 데이터를 저장하고, 조회하는 기능을 제공합니다.
 
 ### RedisComponent에서 사용한 Jedis 메서드
 
@@ -102,6 +102,15 @@ public class RedisConfig {
 - **get(String key)**: 특정 키와 연관된 값을 조회합니다. 키가 존재하지 않으면 `null`을 반환합니다.
 - **jsonSetWithEscape(String key, Object t)**: 객체를 JSON 형식으로 변환하고, 지정된 키에 저장합니다.
 - **jsonGet(String key)**: JSON 형태로 저장된 데이터를 객체로 변환하여 가져옵니다. 저장된 데이터가 없는 경우 `null`을 반환합니다.
+
+### RedisComponent의 메서드
+
+`RedisComponent`는 Jedis 메서드들을 활용하여 Redis 서버와의 연동을 위해 필요한 메서드를 제공합니다.
+
+- **`setString(String key, String value, long ttl)`**: `set` 메서드를 사용하여 문자열 데이터를 Redis에 저장하고, `expire` 메서드를 이용해 키의 만료 시간을 설정합니다.
+- **`getString(String key)`**: `get` 메서드를 사용하여 Redis에 저장된 문자열 값을 조회합니다. 키가 존재하지 않으면 `null`을 반환합니다.
+- **`setJson(String key, T t, long ttl)`**: `jsonSetWithEscape`를 사용하여 객체를 JSON으로 변환한 후 저장하고, `expire`를 활용하여 키의 만료 시간을 설정합니다.
+- **`getJsonObject(String key, Class<T> clazz)`**: `jsonGet`을 사용해 특정 키의 데이터를 가져오고, 지정된 클래스 타입(`clazz`)으로 변환하여 반환합니다.
 
 **RedisComponent.java**
 
@@ -432,7 +441,7 @@ public class RedisConfig {
 
 ## 4. RedisComponent 구현
 
-`RedisComponent` 클래스는 Jedis를 통해 Redis에 데이터를 저장하고 조회할 수 있도록 합니다. JSON 데이터의 직렬화와 역직렬화를 지원합니다.
+`RedisComponent` 클래스는 Jedis를 활용해 객체의 JSON 변환 및 저장, 조회와 같은 기능을 제공합니다.
 
 ### RedisComponent에서 사용한 Jedis 메서드
 
@@ -441,6 +450,15 @@ public class RedisConfig {
 - **jsonGet(String key)**: JSON 형태로 저장된 데이터를 객체로 변환하여 가져옵니다. 저장된 데이터가 없는 경우 `null`을 반환합니다.
 - **jsonGet(String key, String path)**: 지정된 키와 경로에 해당하는 JSON 데이터를 객체로 변환하여 가져옵니다. 경로나 데이터가 유효하지 않으면
   `null`을 반환합니다.
+
+### RedisComponent의 메서드
+
+`RedisComponent`는 Jedis 메서드들을 활용하여 Redis 서버와의 연동을 위해 필요한 메서드를 제공합니다.
+
+- **`setJson(String key, T t, long ttl)`**: `jsonSetWithEscape`를 사용하여 객체를 JSON으로 변환한 후 저장하고, `expire`를 활용하여 키의 만료 시간을 설정합니다.
+- **`getJsonArray(String key, String path)`**: `jsonGet` 메서드 호출 시 경로(`path`)를 추가하여 지정된 경로의 JSON 배열을 조회합니다. 데이터가 없는 경우 `null`을 반환합니다.
+- **`getJsonObject(String key, Class<T> clazz)`**: `jsonGet`을 사용해 특정 키의 데이터를 가져오고, 지정된 클래스 타입(`clazz`)으로 변환하여 반환합니다.
+- **`getJsonList(String key, Class<T> clazz, String path)`**: `jsonGet`을 활용하여 경로(`path`)에 해당하는 데이터를 조회하고, 이를 리스트 형태로 변환하여 반환합니다.
 
 **RedisComponent.java**
 
