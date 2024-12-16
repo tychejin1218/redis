@@ -11,4 +11,4 @@ logging:
 redis:
   cluster:
     nodes:
-      localhost:7001
+      localhost:6379

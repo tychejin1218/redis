@@ -116,7 +116,7 @@ class RedisComponentTest {
 
     // When
     redisComponent.setStringValue(key, strRequest, duration, timeUnit);
-    Thread.sleep(2000);
+    TimeUnit.SECONDS.sleep(duration);
 
     // Then
     String retrievedValue = redisComponent.getStringValue(key);
