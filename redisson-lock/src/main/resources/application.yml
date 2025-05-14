@@ -1,0 +1,14 @@
+# Service Post 설정
+server:
+  port: 9091
+
+# Log Level 설정
+logging:
+  level:
+    root: info
+
+# Redis 설정
+redis:
+  cluster:
+    nodes:
+      127.0.0.1:7001
