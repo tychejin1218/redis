@@ -7,8 +7,14 @@ logging:
   level:
     root: info
 
-# Redis 설정
+# Redis Stand Alone 설정
 redis:
-  cluster:
-    nodes:
-      127.0.0.1:7001
+  stand-alone:
+    host: localhost
+    port: 6379
+
+# Redis Cluster 설정
+#redis:
+#  cluster:
+#    nodes:
+#      127.0.0.1:6379
